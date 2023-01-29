@@ -6,4 +6,7 @@
     .navBtn {
         @apply hidden h-6 px-2 md:inline-flex cursor-pointer hover:scale-125 transition-all ease-out duration-150;
     }
+    .btn {
+        @apply h-7 cursor-pointer hover:scale-125 transition-all ease-out duration-150;
+    }
 }
