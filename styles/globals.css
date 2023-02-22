@@ -9,4 +9,7 @@
     .btn {
         @apply h-7 cursor-pointer hover:scale-125 transition-all ease-out duration-150;
     }
+    .input{
+        @apply border border-gray-300 bg-gray-50 w-72 rounded placeholder-gray-400 text-sm
+    }
 }
