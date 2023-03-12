@@ -1,12 +1,20 @@
-import React from 'react'
-import { ClientSafeProvider, getProviders, LiteralUnion, signIn as SignIntoProvider } from "next-auth/react"
+import React, { useEffect } from 'react'
+import { ClientSafeProvider, getProviders, LiteralUnion, signIn as SignIntoProvider, useSession } from "next-auth/react"
 import { BuiltInProviderType } from 'next-auth/providers'
 import Header from '../../components/Header'
 import Image from 'next/legacy/image'
 import Login from '../../components/Login'
+import { useRouter } from 'next/router'
 
 type Providers = { providers: Promise<Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider> | null> }
 function signIn(props: Providers) {
+  const router = useRouter();
+  const { data: session } = useSession() as any;
+  useEffect(() => {
+      console.log(session, "session ");
+      if (session) router.push('/');
+    
+  }, [session])
   return (
     <div className='bg-gray-50'>
       {/* <Header /> */}
@@ -31,7 +39,7 @@ function signIn(props: Providers) {
           {
             Object.values(props.providers).map((provider) => (
               <div key={provider.name}>
-                <button className='bg-red-500 mt-3 text-white py-1 w-72 border rounded-md' onClick={() => SignIntoProvider(provider.id)}>
+                <button className='bg-red-500 mt-3 text-white py-1 w-72 border rounded-md' onClick={() => SignIntoProvider(provider.id, {callbackUrl: "/"})}>
                   Sign in with {provider.name}
                 </button>
               </div>
