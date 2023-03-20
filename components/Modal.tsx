@@ -1,14 +1,32 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { CameraIcon } from '@heroicons/react/24/solid';
+import { addDoc, collection, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadString } from 'firebase/storage';
+import { useSession } from 'next-auth/react';
 import React, { Fragment, useRef, useState } from 'react'
 import { useRecoilState, } from 'recoil'
 import { modalState } from '../atoms/modalAtoms'
+import { db, storage } from '../firebase';
 
 function Modal() {
+  // useSession
+  const { data: session } = useSession() as any;
+
+  //store
   const [open, setOpen] = useRecoilState(modalState);
+
+  // useRefs
   const filePickerRef = useRef<HTMLInputElement>(null);
+  const captionRef = useRef<HTMLInputElement>(null);
+  console.log("caption0", captionRef.current)
+
+  //useState
   const [selectedFile, setSelectedFile] = useState<string | ArrayBuffer | null>(null);
-  const uploaded = true;
+  const [loading, setLoading] = useState(false);
+
+  const uploaded = filePickerRef.current ? true : false;
+
+  // function to open file explorer to add select the image
   const addImageToPost = (e: React.ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
     if (!(e.target as HTMLInputElement)!.files![0]) return null;
@@ -18,6 +36,38 @@ function Modal() {
       setSelectedFile(readerEvent!.target!.result!);
     }
   }
+
+  // function to add data in firestore
+  const uploadPost = async () => {
+    if (loading) return;
+    setLoading(true);
+    // 1) Create a post and add to the firestore 'posts' collection
+    const docRef = await addDoc(collection(db, 'posts'), {
+      username: session.user.username,
+      caption: captionRef.current!.value,
+      profileImg: session.user.image,
+      timestamp: serverTimestamp()
+    })
+
+    // 2) get the post Id for the newly created post
+    console.log("docRef Id", docRef.id);
+
+    // 3) Upload the image to the firebase storage with the post Id
+    const imageRef = ref(storage, `posts/${docRef.id}/image`)
+
+    // 4) Get a download url from fb storage and update the original post with image
+    await uploadString(imageRef, selectedFile as string, "data_url").then(async snapshot=>{
+      const downloadUrl = await getDownloadURL(imageRef);
+
+      await updateDoc(doc(db, 'posts', docRef.id), {image: downloadUrl})
+    });
+
+    setLoading(false)
+    setOpen(false);
+    setSelectedFile(null);
+
+  }
+
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
@@ -71,8 +121,8 @@ function Modal() {
                   <div>
                     <input type="file"
                       ref={filePickerRef}
-                      hidden 
-                      onChange={addImageToPost}/>
+                      hidden
+                      onChange={addImageToPost} />
                   </div>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
@@ -83,10 +133,10 @@ function Modal() {
               </div>
               <div className="relative border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-indigo-600 focus-within:border-indigo-600">
                 <label htmlFor="name" className="absolute -top-2 left-2 -mt-px inline-block px-1 bg-white text-xs font-medium text-gray-900">Caption</label>
-                <textarea name="name" id="name" className="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="Write your caption ....." />
+                <textarea name="name" ref={captionRef} id="name" className="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="Write your caption ....." />
               </div>
               <div className="mt-8 sm:mt-6">
-                <button onClick={} type="button" className="inline-flex justify-center w-full rounded-md border border-transparent sehadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white
+                <button onClick={uploadPost} disabled={!selectedFile} type="button" className="inline-flex justify-center w-full rounded-md border border-transparent sehadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white
                  hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm">
                   Upload a Photo
                 </button>
