@@ -3,7 +3,7 @@ import { CameraIcon } from '@heroicons/react/24/solid';
 import { addDoc, collection, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { useSession } from 'next-auth/react';
-import React, { Fragment, useRef, useState } from 'react'
+import React, { Fragment, RefObject, useRef, useState } from 'react'
 import { useRecoilState, } from 'recoil'
 import { modalState } from '../atoms/modalAtoms'
 import { db, storage } from '../firebase';
@@ -17,8 +17,7 @@ function Modal() {
 
   // useRefs
   const filePickerRef = useRef<HTMLInputElement>(null);
-  const captionRef = useRef<HTMLInputElement>(null);
-  console.log("caption0", captionRef.current)
+  const captionRef = useRef<HTMLTextAreaElement>(null);
 
   //useState
   const [selectedFile, setSelectedFile] = useState<string | ArrayBuffer | null>(null);
@@ -56,16 +55,14 @@ function Modal() {
     const imageRef = ref(storage, `posts/${docRef.id}/image`)
 
     // 4) Get a download url from fb storage and update the original post with image
-    await uploadString(imageRef, selectedFile as string, "data_url").then(async snapshot=>{
-      const downloadUrl = await getDownloadURL(imageRef);
+    const snapshot = await uploadString(imageRef, selectedFile as string, "data_url").then( async (snapshot) => {
+      const downloadUrl = await getDownloadURL(imageRef)
 
-      await updateDoc(doc(db, 'posts', docRef.id), {image: downloadUrl})
+      await updateDoc(doc(db, 'posts', docRef.id), {image: selectedFile});
     });
-
     setLoading(false)
     setOpen(false);
     setSelectedFile(null);
-
   }
 
   return (
