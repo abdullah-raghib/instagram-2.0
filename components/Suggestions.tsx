@@ -13,7 +13,7 @@ const Suggestions = () => {
     setSuggestions(suggesArr);
 
   }, [])
-  console.log(suggestions);
+  // console.log(suggestions);
   return (
     <div>
       <div className='flex justify-between'>

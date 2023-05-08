@@ -11,7 +11,7 @@ function signIn(props: Providers) {
   const router = useRouter();
   const { data: session } = useSession() as any;
   useEffect(() => {
-      console.log(session, "session ");
+      // console.log(session, "session ");
       if (session) router.push('/');
     
   }, [session])

@@ -1,11 +1,69 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/legacy/image'
 import { EllipsisHorizontalIcon } from "@heroicons/react/24/solid"
 import { HeartIcon, ChatBubbleOvalLeftIcon, PaperAirplaneIcon, BookmarkIcon, FaceSmileIcon } from "@heroicons/react/24/outline"
+import { DocumentData, QueryDocumentSnapshot, addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import Moment from 'react-moment';
+import { useSession } from 'next-auth/react';
+//@ts-ignore
+interface Props {
+  id: string;
+  username: string;
+  img: string;
+  userImg: string;
+  caption: string;
+}
+
+function Post(props: Props) {
+  // console.log(props.id, props.username, props.img, props.userImg);
+  const {data: session} = useSession();
+  const [comment, setComment] = useState("")
+  const [comments, setComments] = useState<QueryDocumentSnapshot<DocumentData>[]>([])
+  const [likes, setLikes] = useState<QueryDocumentSnapshot<DocumentData>[]>([])
+
+  // For getting comments from firestore
+  useEffect(() => {
+    const unsubscribe = onSnapshot(query(collection(db, 'posts', props.id, 'comments'), orderBy('timestamp', 'desc')), (snapshot) => {
+      console.log("snapshot", snapshot.docs)
+      setComments([...snapshot.docs])
+    })
+    return unsubscribe
+  }, [db, props.id])
+
+  // Getting Likes from firestore
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'posts', props.id, 'likes'), (snapshot) => {
+      console.log("snapshot", snapshot.docs)
+      setLikes(snapshot.docs)
+    })
+    return unsubscribe
+  }, [db, props.id])
+
+  // Set Likes in firestore
+  const likePosts = async () =>{
+    //@ts-ignore
+    await setDoc(doc(db, "posts", props.id, "likes", session?.user?.uid), {
+      //@ts-ignore
+      username: session?.user?.username,
+    });
+  }
+
+  const sendComment = async (e: any) => {
+    e.preventDefault();
+    const commentToSend = comment;
+    setComment('')
+
+    await addDoc(collection(db, 'posts', props.id, 'comments'), {
+      comment: commentToSend,
+      username: props.username,
+      userImage: props.userImg,
+      timestamp: serverTimestamp()
+    });
+  }
 
 
-function Post(props) {
-  console.log(props.id, props.username, props.img, props.userImg);
+  console.log(comments)
   return (
     <div className='bg-white border rounded-sm my-7'>
       {/* Header */}
@@ -23,7 +81,7 @@ function Post(props) {
       {/* Buttons */}
       <div className='flex justify-between m-2 '>
         <div className='flex space-x-4'>
-          <HeartIcon className='btn' />
+          <HeartIcon onClick={likePosts} className='btn' />
           <ChatBubbleOvalLeftIcon className='btn' />
           <PaperAirplaneIcon className='btn' />
         </div>
@@ -36,11 +94,28 @@ function Post(props) {
         </p>
       </div>
       {/* Comments */}
+      {
+        comments.length > 0 && (
+          <div className='ml-10 h-20 overflow-y-scroll scrollbar-thumb-black scrollbar-thin'>
+            {comments.map((comment, i) => (
+              <div key={comment.id + i} className='flex items-center justify-between'>
+                <div className='flex items-center space-x-2 mb-3'>
+                  <img src={comment.data().userImage} alt="" className='h-7 rounded-full' />
+                  <strong>{comment.data().username}</strong><span>{" "}</span>
+                  <p>{comment.data().comment}</p>
+                </div>
+                <Moment fromNow className='text-sm text-gray-400 pr-5'>{comment.data().timestamp.toDate()}</Moment>
+              </div>
+            ))}
+          </div>
+
+        )
+      }
       {/* Input */}
       <div className='flex items-center p-2'>
         <FaceSmileIcon className='btn mr-1' />
-        <input placeholder='Add a comment...' type="text" className='w-full border-none focus:ring-0 outline-none' />
-        <button className='text-blue-600 font-semibold'>Post</button>
+        <input placeholder='Add a comment...' value={comment} onChange={(e: any) => setComment(e.target.value)} type="text" className='w-full border-none focus:ring-0 outline-none' />
+        <button type='submit' disabled={!comment.trim()} onClick={sendComment} className='text-blue-600 font-semibold'>Post</button>
       </div>
     </div>
   )
