@@ -16,7 +16,7 @@ const MiniProfile = () => {
         <b>{session?.user?.username}</b>
         <p className='text-gray-800'>Abdullah Raghib Siddiqui</p>
       </div>
-      <button onClick={() => signOut} className='btn text-blue-400 px-1 mt-2'>
+      <button onClick={signOut} className='btn text-blue-400 px-1 mt-2'>
         Sign Out
       </button>
     </div>
