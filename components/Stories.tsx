@@ -20,7 +20,6 @@ const Stories = () => {
     }));
     setSuggestions(suggestion);
   }, []);
-  // console.log(suggestions);
   return (
     <div className='flex mt-8 space-x-2 p-6 bg-white border-gray-200 border rounded-sm overflow-x-scroll scrollbar-thin scrollbar-thumb-black'>
     {suggestions.map((profile)=>(

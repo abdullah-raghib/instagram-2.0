@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import Image from 'next/legacy/image'
-import { EllipsisHorizontalIcon } from "@heroicons/react/24/solid"
+import { EllipsisHorizontalIcon, HeartIcon as HeartIconFilled } from "@heroicons/react/24/solid"
 import { HeartIcon, ChatBubbleOvalLeftIcon, PaperAirplaneIcon, BookmarkIcon, FaceSmileIcon } from "@heroicons/react/24/outline"
-import { DocumentData, QueryDocumentSnapshot, addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
+import { DocumentData, QueryDocumentSnapshot, addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import Moment from 'react-moment';
 import { useSession } from 'next-auth/react';
+import { Session } from 'next-auth';
 //@ts-ignore
 interface Props {
   id: string;
@@ -15,17 +16,18 @@ interface Props {
   caption: string;
 }
 
+
 function Post(props: Props) {
   // console.log(props.id, props.username, props.img, props.userImg);
-  const {data: session} = useSession();
+  const { data: session } = useSession();
   const [comment, setComment] = useState("")
   const [comments, setComments] = useState<QueryDocumentSnapshot<DocumentData>[]>([])
   const [likes, setLikes] = useState<QueryDocumentSnapshot<DocumentData>[]>([])
+  const [hasLiked, setHasLiked] = useState<boolean>(false);
 
   // For getting comments from firestore
   useEffect(() => {
     const unsubscribe = onSnapshot(query(collection(db, 'posts', props.id, 'comments'), orderBy('timestamp', 'desc')), (snapshot) => {
-      console.log("snapshot", snapshot.docs)
       setComments([...snapshot.docs])
     })
     return unsubscribe
@@ -34,19 +36,33 @@ function Post(props: Props) {
   // Getting Likes from firestore
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'posts', props.id, 'likes'), (snapshot) => {
-      console.log("snapshot", snapshot.docs)
       setLikes(snapshot.docs)
     })
     return unsubscribe
   }, [db, props.id])
 
+  // Getting Likes from firestore
+  useEffect(
+    () =>
+      setHasLiked(
+        //@ts-ignore
+        likes.findIndex((like) => (like.id === session?.user?.uid)) !== -1
+      ),
+    [likes]
+  );
+
   // Set Likes in firestore
-  const likePosts = async () =>{
-    //@ts-ignore
-    await setDoc(doc(db, "posts", props.id, "likes", session?.user?.uid), {
+  const likePosts = async () => {
+    if (hasLiked) {
       //@ts-ignore
-      username: session?.user?.username,
-    });
+      await deleteDoc(doc(db, "posts", props.id, "likes", session?.user?.uid))
+    } else {
+      //@ts-ignore
+      await setDoc(doc(db, "posts", props.id, "likes", session?.user?.uid), {
+        //@ts-ignore
+        username: session?.user?.username,
+      });
+    }
   }
 
   const sendComment = async (e: any) => {
@@ -62,8 +78,6 @@ function Post(props: Props) {
     });
   }
 
-
-  console.log(comments)
   return (
     <div className='bg-white border rounded-sm my-7'>
       {/* Header */}
@@ -81,12 +95,20 @@ function Post(props: Props) {
       {/* Buttons */}
       <div className='flex justify-between m-2 '>
         <div className='flex space-x-4'>
-          <HeartIcon onClick={likePosts} className='btn' />
+          {
+            hasLiked ? (
+              <HeartIconFilled onClick={likePosts} className='btn text-red-500' />
+            ) : (
+
+              <HeartIcon onClick={likePosts} className='btn' />
+            )
+          }
           <ChatBubbleOvalLeftIcon className='btn' />
           <PaperAirplaneIcon className='btn' />
         </div>
         <BookmarkIcon className='btn' />
       </div>
+      { likes.length > 0 && (<p className='font-bold mx-2'>{likes.length} likes</p>)}
       {/* Caption */}
       <div>
         <p><span className='font-bold mx-2'>{props.username}</span>

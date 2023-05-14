@@ -15,7 +15,6 @@ const Header = () => {
   const { data: session } = useSession();
   const [open, setOpen] = useRecoilState(modalState)
   useEffect(() => {
-    // console.log(session, "session ");
     if (!session) {
       router.push('/auth/signin')
     } else {
@@ -24,10 +23,7 @@ const Header = () => {
     }
   }, [session])
 
-  // console.log(session);
-  function signIn() {
-    // console.log("sign In")
-  }
+
   function signOutFn() {
     useRouter().push('/auth/signin') // replace "/your-route" with the actual route you want to navigate to
   }

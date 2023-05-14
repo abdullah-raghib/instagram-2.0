@@ -6,16 +6,6 @@ import { Router, useRouter } from 'next/router';
 const MiniProfile = () => {
   const router = useRouter();
   const { data: session } = useSession() as any;
-  // useEffect(() => {
-  //     console.log(session, "session ");
-  //     if (!session && !session?.user){
-  //        router.push('/auth/signin')
-  //       } else {
-  //       router.push('/')
-
-  //     }
-  // }, [session])
-
 
   return (
     <div className='flex mt-14 w-full space-x-4'>
@@ -26,7 +16,7 @@ const MiniProfile = () => {
         <b>{session?.user?.username}</b>
         <p className='text-gray-800'>Abdullah Raghib Siddiqui</p>
       </div>
-      <button onClick={signOut} className='btn text-blue-400 px-1 mt-2'>
+      <button onClick={() => signOut} className='btn text-blue-400 px-1 mt-2'>
         Sign Out
       </button>
     </div>

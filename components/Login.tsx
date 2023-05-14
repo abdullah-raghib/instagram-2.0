@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { SetStateAction, useState } from 'react';
 
 function Login() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState<any>('');
+    const [password, setPassword] = useState<any>('');
 
     const handleEmailChange = (event: Event) => {
         setEmail(event?.target);
     };
 
     const handlePasswordChange = (event: Event) => {
-        setPassword(event!.target);
+        setPassword(event!.target || "");
     };
 
     const handleSubmit = (event: Event) => {
@@ -27,7 +27,7 @@ function Login() {
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                    <form className="space-y-6" onSubmit={handleSubmit}>
+                    <form className="space-y-6" onSubmit={() => handleSubmit}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                 Email address
@@ -40,7 +40,7 @@ function Login() {
                                     autoComplete="email"
                                     required
                                     value={email}
-                                    onChange={handleEmailChange}
+                                    onChange={() => handleEmailChange}
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 />
                             </div>
@@ -58,7 +58,7 @@ function Login() {
                                     autoComplete="current-password"
                                     required
                                     value={password}
-                                    onChange={handlePasswordChange}
+                                    onChange={() => handlePasswordChange}
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 />
                             </div>

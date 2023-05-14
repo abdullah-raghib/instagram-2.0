@@ -10,26 +10,7 @@ interface Post {
   img: string;
   caption: string;
 }
-// const posts = [{
-//   id: "1",
-//   username: "abdullah.mars",
-//   userImg: "/profile.jpeg",
-//   img: "/post.JPG",
-//   caption: "Live Life as You Like !!",
-// }, {
-//   id: "2",
-//   username: "abdullah.mars",
-//   userImg: "/profile.jpeg",
-//   img: "/post.JPG",
-//   caption: "Live Life as You Like !!",
-// }, {
-//   id: "3",
-//   username: "abdullah.mars",
-//   userImg: "/profile.jpeg",
-//   img: "/post.JPG",
-//   caption: "Live Life as You Like !!",
-// },
-// ];
+
 function Posts() {
   const [posts, setPosts] = useState<QueryDocumentSnapshot<DocumentData>[]>([])
   useEffect(() => {
@@ -38,8 +19,6 @@ function Posts() {
     })
  return unsubscribe;
   }, [db])
-
-  // console.log(posts);
 
   return (
     <div>
