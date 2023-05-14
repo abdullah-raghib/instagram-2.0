@@ -4,7 +4,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "vercel-build": "npm run prepare && next build"
   },
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
