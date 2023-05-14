@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import Image from 'next/legacy/image'
 import { signOut, useSession } from 'next-auth/react';
-import { Router, useRouter } from 'next/router';
+import { Router, useRouter } from "next/router";
 
 const MiniProfile = () => {
   const router = useRouter();
