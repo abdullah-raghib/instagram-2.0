@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: true,
+  ssr: false,
   serverOptions: {
     // Here, you can specify the IP address to use
     // for example, use localhost:3000
