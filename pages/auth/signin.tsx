@@ -28,8 +28,8 @@ function signIn(props: Providers) {
           </div>
           {/* Form */}
           <div className='space-y-3 flex items-center flex-col'>
-            <input className='input' type="text" placeholder='Phone number, username, or email' />
-            <input className='input' type="password" placeholder='password' />
+            <input className='input' disabled={true} type="text" placeholder='Phone number, username, or email' />
+            <input className='input' disabled={true} type="password" placeholder='password' />
             <div className='flex items-start w-full'>
               <label className='text-sm text-gray-900'>
                 <input id="comments" aria-describedby="comments-description" name="comments" type="checkbox" className="focus:ring-white h-4 w-4 text-indigo-600 border-gray-300 rounded mr-5 text-left" />Save Login Info              </label>

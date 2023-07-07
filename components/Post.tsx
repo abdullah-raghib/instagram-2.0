@@ -126,7 +126,7 @@ function Post(props: Props) {
                   <strong>{comment.data().username}</strong><span>{" "}</span>
                   <p>{comment.data().comment}</p>
                 </div>
-                <Moment fromNow className='text-sm text-gray-400 pr-5'>{comment.data().timestamp.toDate()}</Moment>
+                <Moment fromNow className='text-sm text-gray-400 pr-5'>{comment.data()?.timestamp?.toDate()}</Moment>
               </div>
             ))}
           </div>
