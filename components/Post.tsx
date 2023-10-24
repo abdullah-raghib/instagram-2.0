@@ -108,7 +108,7 @@ function Post(props: Props) {
         </div>
         <BookmarkIcon className='btn' />
       </div>
-      { likes.length > 0 && (<p className='font-bold mx-2'>{likes.length} likes</p>)}
+      {likes.length > 0 && (<p className='font-bold mx-2'>{likes.length} likes</p>)}
       {/* Caption */}
       <div>
         <p><span className='font-bold mx-2'>{props.username}</span>
@@ -118,15 +118,17 @@ function Post(props: Props) {
       {/* Comments */}
       {
         comments.length > 0 && (
-          <div className='ml-10 h-20 overflow-y-scroll scrollbar-thumb-black scrollbar-thin'>
+          <div className='sm:pl-10 pl-2 pr-2 h-20 overflow-y-scroll scrollbar-thumb-black scrollbar-thin bg-gray-100'>
             {comments.map((comment, i) => (
-              <div key={comment.id + i} className='flex items-center justify-between'>
-                <div className='flex items-center space-x-2 mb-3'>
-                  <img src={comment.data().userImage} alt="" className='h-7 rounded-full' />
+              <div key={comment.id + i} className='my-3 bg-gray-200 rounded p-2'>
+                <div className='flex items-center justify-between space-x-2 mb-1'>
+                  <div className='flex space-x-3'>
+                  <img src={comment.data().userImage} alt="" className='h-7 rounded-full align-self-start' />
                   <strong>{comment.data().username}</strong><span>{" "}</span>
-                  <p>{comment.data().comment}</p>
+                  </div>
+                  <Moment fromNow className='text-sm text-gray-400 pr-5'>{comment.data()?.timestamp?.toDate()}</Moment>
                 </div>
-                <Moment fromNow className='text-sm text-gray-400 pr-5'>{comment.data()?.timestamp?.toDate()}</Moment>
+                <p className='pl-2'>{comment.data().comment}</p>
               </div>
             ))}
           </div>
