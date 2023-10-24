@@ -5,9 +5,31 @@ import Header from '../../components/Header'
 import Image from 'next/legacy/image'
 import Login from '../../components/Login'
 import { useRouter } from 'next/router'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type Providers = { providers: Promise<Record<LiteralUnion<BuiltInProviderType, string>, ClientSafeProvider> | null> }
+
+function Msg (){
+  return (
+    <div>
+      <p>Only <span className='font-bold'>Sign in with Google</span> is working! 😎</p>
+    </div>
+  )
+}
+
 function signIn(props: Providers) {
+  const notify = () => toast.warn(Msg, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "light",
+  });
+
   const router = useRouter();
   const { data: session } = useSession() as any;
   useEffect(() => {
@@ -15,14 +37,30 @@ function signIn(props: Providers) {
     if (session) router.push('/');
 
   }, [session])
+
   return (
     <div className='bg-gray-50'>
+      {/* Warning Snackbar */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      {/* Same as */}
+      <ToastContainer />
       {/* <Header /> */}
       <div className='flex justify-center items-center h-screen'>
-        <div>
+        <div className='hidden sm:block'>
           <Image src={"/SignInMobile.png"} width="400" height={600} />
         </div>
-        <div className='w-[22rem] h-[35rem] bg-white border-gray-200 border ml-2 flex flex-col items-center rounded-sm'>
+        <div className='w-[22rem] h-[35rem] bg-white border-gray-200 border sm:ml-2 flex flex-col items-center rounded-sm'>
           <div className=''>
             <Image src="https://links.papareact.com/ocw" alt="img" objectFit="contain" width="200" height="200" />
           </div>
@@ -34,7 +72,7 @@ function signIn(props: Providers) {
               <label className='text-sm text-gray-900'>
                 <input id="comments" aria-describedby="comments-description" name="comments" type="checkbox" className="focus:ring-white h-4 w-4 text-indigo-600 border-gray-300 rounded mr-5 text-left" />Save Login Info              </label>
             </div>
-            <button className='bg-blue-400 text-white rounded-md w-full py-1'>Log in</button>
+            <button onClick={notify} className='bg-blue-400 text-white rounded-md w-full py-1'>Log in</button>
           </div>
           {
             Object.values(props.providers).map((provider) => (
